@@ -1,7 +1,7 @@
 @echo off
 echo =====================================================================
 echo Pushing Student Freelance Marketplace to GitHub
-echo Remote: https://github.com/sammushahi132-cloud/student-freelance-marketplace.git
+echo Remote: https://github.com/sammushahi132-cloud/student-freelance-.git
 echo =====================================================================
 echo.
 
@@ -18,8 +18,8 @@ echo.
 if errorlevel 1 (
     echo.
     echo =====================================================================
-    echo If push failed, your GitHub repository may need to be initialized 
-    echo or you may need to force push if the remote repository has a README.
+    echo If push failed, your GitHub repository may need to be force-pushed
+    echo if it was initialized with a README on GitHub.
     echo To force push, you can run:
     echo   %GIT_PATH% push -u origin main --force
     echo =====================================================================
@@ -27,9 +27,8 @@ if errorlevel 1 (
     echo.
     echo =====================================================================
     echo SUCCESS! Your code has been pushed to:
-    echo https://github.com/sammushahi132-cloud/student-freelance-marketplace
+    echo https://github.com/sammushahi132-cloud/student-freelance-
     echo =====================================================================
 )
 
 pause
-
