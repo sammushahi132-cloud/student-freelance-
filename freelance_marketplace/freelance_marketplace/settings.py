@@ -3,6 +3,7 @@ Django settings for freelance_marketplace project.
 Student Freelance Marketplace - Python Full Stack Internship Project
 """
 
+import os
 from pathlib import Path
 from django.contrib.messages import constants as messages
 
@@ -10,12 +11,24 @@ from django.contrib.messages import constants as messages
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
-SECRET_KEY = 'django-insecure-84uta-38s*lk*u9^^c372*x0he9ax+-9t23%4ynwj*9open+&x'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-84uta-38s*lk*u9^^c372*x0he9ax+-9t23%4ynwj*9open+&x')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', '.onrender.com']
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+    'http://*.onrender.com',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
 
 # Application definition
 INSTALLED_APPS = [
@@ -38,6 +51,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Enable WhiteNoise for static files in production if installed
+try:
+    import whitenoise  # noqa: F401
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+except ImportError:
+    pass
 
 ROOT_URLCONF = 'freelance_marketplace.urls'
 
@@ -96,6 +116,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'marketplace' / 'static',
 ]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Authentication URLs
 LOGIN_URL = 'login'
