@@ -27,3 +27,4 @@ local_settings.py
 # OS generated files
 .DS_Store
 Thumbs.db
+
