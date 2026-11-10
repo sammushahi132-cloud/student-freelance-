@@ -1,0 +1,139 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Proposals for {{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb & Back -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="{% url 'my_projects' %}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to My Projects
+        </a>
+        <span class="text-muted small">Project ID: #{{ project.id }}</span>
+    </div>
+
+    <!-- Project Quick Overview Banner -->
+    <div class="card custom-card border-0 shadow-sm p-4 mb-4 bg-light">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <div>
+                <span class="badge-category mb-2 d-inline-block">{{ project.category }}</span>
+                <h4 class="fw-bold text-dark mb-1">{{ project.title }}</h4>
+                <div class="text-muted small">
+                    Budget: <strong class="text-primary">₹{{ project.budget }}</strong> &bull; 
+                    Deadline: <strong>{{ project.deadline }}</strong> &bull; 
+                    Status: 
+                    {% if project.status == 'Open' %}
+                        <span class="badge badge-open">Open</span>
+                    {% elif project.status == 'Assigned' %}
+                        <span class="badge badge-assigned">Assigned</span>
+                    {% elif project.status == 'Completed' %}
+                        <span class="badge badge-completed">Completed</span>
+                    {% else %}
+                        <span class="badge badge-closed">Closed</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-white text-dark border p-2 fs-6">
+                    <i class="bi bi-people-fill text-primary me-1"></i> {{ proposals.count }} Student Proposal{{ proposals.count|pluralize }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Proposals List / Table -->
+    {% if proposals %}
+        <div class="card custom-card border-0 shadow-sm p-4">
+            <h5 class="fw-bold text-dark mb-3">Submitted Student Proposals</h5>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Student Details</th>
+                            <th scope="col">Student Skills</th>
+                            <th scope="col">Proposal Pitch</th>
+                            <th scope="col">Proposed Fee</th>
+                            <th scope="col">Timeline</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end">Client Decision</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for proposal in proposals %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold text-dark">
+                                        {{ proposal.student.get_full_name|default:proposal.student.username }}
+                                    </div>
+                                    <div class="small text-muted">{{ proposal.student.email }}</div>
+                                    <div class="small text-secondary">{{ proposal.student.profile.education|default:"" }}</div>
+                                </td>
+                                <td style="max-width: 180px;">
+                                    {% if proposal.student.profile.skills %}
+                                        <span class="small text-dark">{{ proposal.student.profile.skills }}</span>
+                                    {% else %}
+                                        <span class="text-muted small">Not provided</span>
+                                    {% endif %}
+                                </td>
+                                <td style="max-width: 250px;">
+                                    <span class="small text-secondary">
+                                        {{ proposal.description|linebreaksbr }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-primary">₹{{ proposal.proposed_amount }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">{{ proposal.estimated_days }} Days</span>
+                                </td>
+                                <td>
+                                    {% if proposal.status == 'Accepted' %}
+                                        <span class="badge badge-accepted"><i class="bi bi-check-circle-fill me-1"></i>Accepted</span>
+                                    {% elif proposal.status == 'Rejected' %}
+                                        <span class="badge badge-rejected"><i class="bi bi-x-circle-fill me-1"></i>Rejected</span>
+                                    {% else %}
+                                        <span class="badge badge-pending"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    {% if proposal.status == 'Pending' %}
+                                        <div class="d-inline-flex gap-1">
+                                            <!-- Accept Proposal -->
+                                            <form method="post" action="{% url 'accept_proposal' proposal.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-success btn-confirm-accept" data-student-name="{{ proposal.student.username }}" title="Accept this proposal">
+                                                    <i class="bi bi-check2"></i> Accept
+                                                </button>
+                                            </form>
+
+                                            <!-- Reject Proposal -->
+                                            <form method="post" action="{% url 'reject_proposal' proposal.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Reject this proposal">
+                                                    <i class="bi bi-x"></i> Reject
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% elif proposal.status == 'Accepted' %}
+                                        <span class="badge bg-success-subtle text-success p-2">Assigned Student</span>
+                                    {% else %}
+                                        <span class="text-muted small">Rejected</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        <div class="card p-5 text-center border-0 shadow-sm bg-white rounded-3">
+            <div class="display-6 text-muted mb-3"><i class="bi bi-inbox"></i></div>
+            <h4 class="text-dark fw-bold">No Proposals Received Yet</h4>
+            <p class="text-muted">Student freelancers will see your project in the public browse list and submit proposals soon.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+

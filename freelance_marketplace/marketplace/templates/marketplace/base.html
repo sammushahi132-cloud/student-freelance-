@@ -1,0 +1,206 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Freelance Marketplace{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom Project CSS -->
+    <link rel="stylesheet" href="{% static 'marketplace/css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- ====================================================================
+         NAVIGATION BAR
+         ==================================================================== -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="bi bi-briefcase-fill"></i> StudentGig
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <!-- Left Nav Links -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}"><i class="bi bi-house-door"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'projects_list' %}"><i class="bi bi-search"></i> Browse Projects</a>
+                    </li>
+
+                    {% if user.is_authenticated %}
+                        {% if user.is_staff %}
+                            <li class="nav-item">
+                                <a class="nav-link text-danger fw-semibold" href="{% url 'admin_dashboard' %}">
+                                    <i class="bi bi-speedometer2"></i> Admin Dashboard
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% if user.profile.role == 'Student' %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'student_dashboard' %}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'my_proposals' %}"><i class="bi bi-file-earmark-text"></i> My Proposals</a>
+                            </li>
+                        {% elif user.profile.role == 'Client' %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'client_dashboard' %}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'my_projects' %}"><i class="bi bi-folder2-open"></i> My Projects</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-primary fw-semibold" href="{% url 'post_project' %}">
+                                    <i class="bi bi-plus-circle"></i> Post Project
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+
+                <!-- Right Nav Links (Auth) -->
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="avatar-circle">
+                                    {{ user.first_name|default:user.username|make_list|first|upper }}
+                                </span>
+                                <span class="d-none d-lg-inline fw-semibold">
+                                    {{ user.first_name|default:user.username }}
+                                </span>
+                                {% if user.profile.role == 'Student' %}
+                                    <span class="badge bg-primary nav-role-badge">Student</span>
+                                {% elif user.profile.role == 'Client' %}
+                                    <span class="badge bg-success nav-role-badge">Client</span>
+                                {% elif user.is_staff %}
+                                    <span class="badge bg-danger nav-role-badge">Admin</span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                {% if user.profile.role == 'Student' %}
+                                    <li><a class="dropdown-item" href="{% url 'student_profile' %}"><i class="bi bi-person me-2"></i> My Profile</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'edit_profile' %}"><i class="bi bi-pencil-square me-2"></i> Edit Profile</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'my_proposals' %}"><i class="bi bi-file-text me-2"></i> My Proposals</a></li>
+                                {% elif user.profile.role == 'Client' %}
+                                    <li><a class="dropdown-item" href="{% url 'my_projects' %}"><i class="bi bi-folder2-open me-2"></i> My Projects</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'post_project' %}"><i class="bi bi-plus-circle me-2"></i> Post a Project</a></li>
+                                {% endif %}
+
+                                {% if user.is_staff %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{% url 'admin_dashboard' %}"><i class="bi bi-graph-up me-2"></i> Platform Stats</a></li>
+                                    <li><a class="dropdown-item" href="/admin/" target="_blank"><i class="bi bi-sliders me-2"></i> Django Admin</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+                        </li>
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-primary btn-sm px-3" href="{% url 'register' %}">
+                                <i class="bi bi-person-plus"></i> Register
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ====================================================================
+         DJANGO MESSAGES
+         ==================================================================== -->
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% elif message.tags == 'danger' %}bi-exclamation-triangle-fill{% elif message.tags == 'warning' %}bi-exclamation-circle-fill{% else %}bi-info-circle-fill{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- ====================================================================
+         MAIN CONTENT BLOCK
+         ==================================================================== -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ====================================================================
+         FOOTER
+         ==================================================================== -->
+    <footer class="footer-custom">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-5">
+                    <h5 class="fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="bi bi-briefcase-fill text-primary"></i> StudentGig
+                    </h5>
+                    <p class="text-muted small pe-md-4">
+                        A dedicated freelance marketplace designed to empower college students to earn money, gain practical work experience, and connect with clients needing quality freelance services.
+                    </p>
+                    <div class="badge bg-light text-secondary border">Python Full Stack Internship Project</div>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="fw-semibold text-dark mb-3">Quick Navigation</h6>
+                    <ul class="list-unstyled small d-flex flex-column gap-2">
+                        <li><a href="{% url 'home' %}"><i class="bi bi-chevron-right me-1"></i> Home</a></li>
+                        <li><a href="{% url 'projects_list' %}"><i class="bi bi-chevron-right me-1"></i> Browse Projects</a></li>
+                        <li><a href="{% url 'register' %}"><i class="bi bi-chevron-right me-1"></i> Join as Freelancer</a></li>
+                        <li><a href="{% url 'register' %}"><i class="bi bi-chevron-right me-1"></i> Hire a Student</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="fw-semibold text-dark mb-3">Technology Stack</h6>
+                    <p class="text-muted small mb-2">Built purely with:</p>
+                    <div class="d-flex flex-wrap gap-1">
+                        <span class="badge bg-light text-dark border">Python 3</span>
+                        <span class="badge bg-light text-dark border">Django 6</span>
+                        <span class="badge bg-light text-dark border">SQLite</span>
+                        <span class="badge bg-light text-dark border">HTML5</span>
+                        <span class="badge bg-light text-dark border">CSS3</span>
+                        <span class="badge bg-light text-dark border">Bootstrap 5</span>
+                        <span class="badge bg-light text-dark border">JavaScript</span>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 text-muted">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center text-muted small">
+                <span>&copy; 2026 Student Freelance Marketplace. All rights reserved.</span>
+                <span>Designed for Python Full Stack Development Internship.</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Project JavaScript -->
+    <script src="{% static 'marketplace/js/script.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

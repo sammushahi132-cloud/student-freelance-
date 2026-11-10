@@ -1,0 +1,167 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Admin Dashboard - Student Freelance Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">
+                Platform Administrator Dashboard 🛡️
+            </h2>
+            <p class="text-muted mb-0">High-level system metrics and database management shortcuts</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/admin/" target="_blank" class="btn btn-outline-danger">
+                <i class="bi bi-gear-fill me-1"></i> Open Django Admin
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 Platform Metric Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary-subtle text-primary">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ total_students }}</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-success-subtle text-success">
+                    <i class="bi bi-briefcase-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ total_clients }}</div>
+                    <div class="stat-label">Total Clients</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning-subtle text-warning">
+                    <i class="bi bi-folder-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ total_projects }}</div>
+                    <div class="stat-label">Total Projects</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-danger-subtle text-danger">
+                    <i class="bi bi-file-earmark-check-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ total_proposals }}</div>
+                    <div class="stat-label">Total Proposals</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Latest Projects Table -->
+    <div class="card custom-card border-0 shadow-sm p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-dark mb-0">
+                <i class="bi bi-list-stars text-primary me-2"></i> Latest 5 Projects
+            </h5>
+            <a href="/admin/marketplace/project/" target="_blank" class="btn btn-sm btn-outline-secondary">
+                Manage in Admin <i class="bi bi-box-arrow-up-right"></i>
+            </a>
+        </div>
+
+        {% if latest_projects %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Title</th>
+                            <th scope="col">Client</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Budget</th>
+                            <th scope="col">Deadline</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end">Manage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for project in latest_projects %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'project_detail' project.id %}" class="fw-semibold text-dark text-decoration-none">
+                                        {{ project.title }}
+                                    </a>
+                                </td>
+                                <td class="text-muted small">{{ project.client.username }}</td>
+                                <td><span class="badge-category">{{ project.category }}</span></td>
+                                <td class="fw-bold text-primary">₹{{ project.budget }}</td>
+                                <td class="text-muted small">{{ project.deadline }}</td>
+                                <td>
+                                    {% if project.status == 'Open' %}
+                                        <span class="badge badge-open">Open</span>
+                                    {% elif project.status == 'Assigned' %}
+                                        <span class="badge badge-assigned">Assigned</span>
+                                    {% elif project.status == 'Completed' %}
+                                        <span class="badge badge-completed">Completed</span>
+                                    {% else %}
+                                        <span class="badge badge-closed">Closed</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="/admin/marketplace/project/{{ project.id }}/change/" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i> Admin Edit
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted text-center py-3 mb-0">No projects in database.</p>
+        {% endif %}
+    </div>
+
+    <!-- Django Admin Direct Links Card -->
+    <div class="card custom-card border-0 shadow-sm p-4">
+        <h5 class="fw-bold text-dark mb-3">
+            <i class="bi bi-database-gear text-primary me-2"></i> Database Quick Links
+        </h5>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <a href="/admin/marketplace/profile/" target="_blank" class="btn btn-outline-primary w-100 py-3 text-start">
+                    <div class="fw-bold"><i class="bi bi-people me-2"></i> Manage Profiles</div>
+                    <small class="text-muted">Students &amp; Clients</small>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="/admin/marketplace/project/" target="_blank" class="btn btn-outline-primary w-100 py-3 text-start">
+                    <div class="fw-bold"><i class="bi bi-folder me-2"></i> Manage Projects</div>
+                    <small class="text-muted">Edit &amp; Status</small>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="/admin/marketplace/proposal/" target="_blank" class="btn btn-outline-primary w-100 py-3 text-start">
+                    <div class="fw-bold"><i class="bi bi-file-earmark-text me-2"></i> Manage Proposals</div>
+                    <small class="text-muted">Review all bids</small>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="/admin/auth/user/" target="_blank" class="btn btn-outline-primary w-100 py-3 text-start">
+                    <div class="fw-bold"><i class="bi bi-person-lock me-2"></i> Manage Users</div>
+                    <small class="text-muted">Auth &amp; Permissions</small>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

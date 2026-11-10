@@ -1,0 +1,149 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Client Dashboard - Student Freelance Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">
+                Client Workspace &bull; {{ user.first_name|default:user.username }} 💼
+            </h2>
+            <p class="text-muted mb-0">Manage your posted projects, review student proposals, and track milestones</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'post_project' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Post a Project
+            </a>
+            <a href="{% url 'my_projects' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-folder2-open me-1"></i> Manage Projects
+            </a>
+        </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary-subtle text-primary">
+                    <i class="bi bi-folder-check"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ total_projects }}</div>
+                    <div class="stat-label">Total Posted</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-success-subtle text-success">
+                    <i class="bi bi-megaphone-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ open_projects }}</div>
+                    <div class="stat-label">Open for Bids</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-info-subtle text-info">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ total_proposals }}</div>
+                    <div class="stat-label">Proposals Received</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-secondary-subtle text-secondary">
+                    <i class="bi bi-check2-all"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ completed_projects }}</div>
+                    <div class="stat-label">Assigned / Done</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Projects Table -->
+    <div class="card custom-card border-0 shadow-sm p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold text-dark mb-0">
+                <i class="bi bi-clock-history text-primary me-2"></i> Your Recent Projects
+            </h5>
+            <a href="{% url 'my_projects' %}" class="btn btn-sm btn-outline-primary">
+                View All <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+
+        {% if recent_projects %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">Title</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Budget</th>
+                            <th scope="col">Deadline</th>
+                            <th scope="col">Proposals</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for project in recent_projects %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'project_detail' project.id %}" class="fw-semibold text-dark text-decoration-none">
+                                        {{ project.title }}
+                                    </a>
+                                </td>
+                                <td><span class="badge-category">{{ project.category }}</span></td>
+                                <td class="fw-bold text-primary">₹{{ project.budget }}</td>
+                                <td class="text-muted small"><i class="bi bi-calendar3 me-1"></i>{{ project.deadline }}</td>
+                                <td>
+                                    <a href="{% url 'view_proposals' project.id %}" class="badge bg-light text-primary border text-decoration-none px-2 py-1">
+                                        <i class="bi bi-envelope-open me-1"></i>{{ project.proposal_count }} Bids
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if project.status == 'Open' %}
+                                        <span class="badge badge-open">Open</span>
+                                    {% elif project.status == 'Assigned' %}
+                                        <span class="badge badge-assigned">Assigned</span>
+                                    {% elif project.status == 'Completed' %}
+                                        <span class="badge badge-completed">Completed</span>
+                                    {% else %}
+                                        <span class="badge badge-closed">Closed</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'view_proposals' project.id %}" class="btn btn-outline-primary" title="View Proposals">
+                                            <i class="bi bi-eye"></i> Proposals
+                                        </a>
+                                        <a href="{% url 'edit_project' project.id %}" class="btn btn-outline-secondary" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4 text-muted">
+                <p class="mb-2">You haven't posted any freelance projects yet.</p>
+                <a href="{% url 'post_project' %}" class="btn btn-primary btn-sm">Post Your First Project</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

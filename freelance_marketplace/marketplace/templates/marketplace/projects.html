@@ -1,0 +1,101 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Browse Projects - Student Freelance Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header & Search -->
+    <div class="row align-items-center mb-4">
+        <div class="col-lg-6 mb-3 mb-lg-0">
+            <h2 class="fw-bold text-dark mb-1">Available Freelance Projects</h2>
+            <p class="text-muted mb-0">Browse open opportunities and submit your proposals</p>
+        </div>
+        <div class="col-lg-6">
+            <form method="get" action="{% url 'projects_list' %}" class="d-flex gap-2">
+                {% if selected_category %}
+                    <input type="hidden" name="category" value="{{ selected_category }}">
+                {% endif %}
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="q" class="form-control border-start-0 ps-0" placeholder="Search by title or description..." value="{{ query }}">
+                    {% if query %}
+                        <a href="{% url 'projects_list' %}{% if selected_category %}?category={{ selected_category }}{% endif %}" class="btn btn-outline-secondary" title="Clear search">
+                            <i class="bi bi-x"></i>
+                        </a>
+                    {% endif %}
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Filter Pills -->
+    <div class="mb-4 d-flex flex-wrap align-items-center gap-1">
+        <span class="fw-semibold text-muted small me-2"><i class="bi bi-funnel"></i> Categories:</span>
+        <a href="{% url 'projects_list' %}{% if query %}?q={{ query }}{% endif %}" class="category-filter-btn {% if not selected_category %}active{% endif %}">
+            All Categories
+        </a>
+        {% for cat in categories %}
+            <a href="{% url 'projects_list' %}?category={{ cat|urlencode }}{% if query %}&q={{ query }}{% endif %}" class="category-filter-btn {% if selected_category == cat %}active{% endif %}">
+                {{ cat }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- Projects Grid -->
+    {% if projects %}
+        <div class="row g-4">
+            {% for project in projects %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="project-card p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge-category">{{ project.category }}</span>
+                            <span class="badge badge-open">Open</span>
+                        </div>
+                        <h5 class="fw-bold mt-2 mb-2">
+                            <a href="{% url 'project_detail' project.pk %}" class="text-dark text-decoration-none">
+                                {{ project.title }}
+                            </a>
+                        </h5>
+                        <p class="text-muted small flex-grow-1">
+                            {{ project.description|truncatewords:24 }}
+                        </p>
+                        <hr class="my-3 text-muted">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <span class="text-muted small d-block">Budget</span>
+                                <span class="price-tag">₹{{ project.budget }}</span>
+                            </div>
+                            <div class="text-end">
+                                <span class="text-muted small d-block">Deadline</span>
+                                <span class="fw-semibold text-dark small"><i class="bi bi-calendar3"></i> {{ project.deadline }}</span>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2">
+                            <span class="small text-muted">
+                                <i class="bi bi-building"></i> {{ project.client.username }}
+                            </span>
+                            <a href="{% url 'project_detail' project.pk %}" class="btn btn-sm btn-primary">
+                                View Details <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card p-5 text-center border-0 shadow-sm bg-white rounded-3">
+            <div class="display-5 text-muted mb-3"><i class="bi bi-search"></i></div>
+            <h4 class="text-dark fw-bold">No Projects Found</h4>
+            <p class="text-muted">No open projects match your search query or selected category filter.</p>
+            <div class="d-flex justify-content-center gap-2">
+                <a href="{% url 'projects_list' %}" class="btn btn-outline-primary btn-sm">Reset Filters</a>
+                {% if user.profile.role == 'Client' %}
+                    <a href="{% url 'post_project' %}" class="btn btn-primary btn-sm">Post a New Project</a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
